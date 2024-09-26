@@ -1,11 +1,9 @@
--- Виды родства
 INSERT INTO relationship_types (name) VALUES
-('Отец'), 
-('Мать'), 
-('Сын'), 
+('Отец'),
+('Мать'),
+('Сын'),
 ('Дочь');
 
--- Статьи расходов
 INSERT INTO expense_categories (name) VALUES
 ('Продукты питания'),
 ('Оплата жилья'),
@@ -13,7 +11,6 @@ INSERT INTO expense_categories (name) VALUES
 ('Транспорт'),
 ('Развлечения');
 
--- Статьи доходов
 INSERT INTO income_categories (name) VALUES
 ('Зарплата'),
 ('Пенсия'),
