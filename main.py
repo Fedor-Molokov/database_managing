@@ -2,6 +2,7 @@ import argparse
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from user_auth import create_user, authenticate_user
+from audit import view_audit_log, initialize_audit_system
 
 # Параметры подключения
 host = "localhost"
@@ -65,7 +66,9 @@ def run_authentication_module(conn):
 
 def main():
     parser = argparse.ArgumentParser(description='Управление функционалом приложения учета семейного бюджета.')
+    parser.add_argument('--init-data', action='store_true', help='Запустить модуль инициализации данных.')
     parser.add_argument('--auth', action='store_true', help='Запустить модуль аутентификации пользователей.')
+    parser.add_argument('--view-audit', action='store_true', help='Просмотреть журнал аудита изменений.')
     args = parser.parse_args()
 
     conn = create_connection()
@@ -73,8 +76,15 @@ def main():
         print("Успешное подключение к базе данных.")
         if args.auth:
             run_authentication_module(conn)
+        elif args.init_data:
+            initialize_data(conn)
+            print("Успешная инициализация данных.")
+            initialize_audit_system(conn)
+        elif args.view_audit:
+            view_audit_log(conn)
         else:
-            print("Не указана функция для запуска. Используйте --auth для запуска аутентификации.")
+            parser.print_help()
+            print("\nНе указана функция для запуска. Используйте один из доступных флагов.")
         conn.close()
     else:
         print("Не удалось подключиться к базе данных.")

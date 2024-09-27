@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS budget (
     income_amount DECIMAL(10, 2)
 );
 
+-- for python3 code modules
+
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -36,3 +38,12 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) NOT NULL DEFAULT 'user'
 );
 
+CREATE TABLE IF NOT EXISTS audit_log (
+    id SERIAL PRIMARY KEY,
+    table_name VARCHAR(255),
+    operation_type VARCHAR(50),
+    old_value TEXT,
+    new_value TEXT,
+    username VARCHAR(255),
+    operation_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
