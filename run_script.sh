@@ -2,6 +2,7 @@
 
 
 # pip3 install psycopg2-binary
+# pip3 install bcrypt
 
 docker compose up -d
 sleep 2

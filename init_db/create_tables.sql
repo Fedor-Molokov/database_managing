@@ -28,3 +28,11 @@ CREATE TABLE IF NOT EXISTS budget (
     income_category_id INTEGER REFERENCES income_categories(id),
     income_amount DECIMAL(10, 2)
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(256) NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'user'
+);
+
