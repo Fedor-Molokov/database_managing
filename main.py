@@ -1,12 +1,14 @@
 import argparse
 import psycopg2
+import random
+from datetime import datetime
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from user_auth import create_user, authenticate_user
 from audit import view_audit_log, initialize_audit_system
 from view import view_income, view_expenses, view_budget_summary
 from visualization import plot_expenses, get_income_data, plot_incomes, get_expense_data, plot_income_vs_expenses
-import random
-from datetime import datetime
+from report import report_by_month, report_by_category, report_by_family_member
+
 
 host = "localhost"
 dbname = "my_database"
@@ -156,6 +158,9 @@ def main():
     parser.add_argument('--plot-expenses', action='store_true', help='Построить график расходов.')
     parser.add_argument('--plot-incomes', action='store_true', help='Построить график доходов.')
     parser.add_argument('--plot-summary', action='store_true', help='Построить круговую диаграмму доходов и расходов.')
+    parser.add_argument('--report-month', action='store_true', help='Отчет о доходах и расходах по месяцам.')
+    parser.add_argument('--report-category', action='store_true', help='Отчет о доходах и расходах по категориям.')
+    parser.add_argument('--report-family', action='store_true', help='Отчет о доходах и расходах по членам семьи.')
     args = parser.parse_args()
 
     conn = create_connection()
@@ -189,6 +194,12 @@ def main():
             income_data = get_income_data(conn)
             expense_data = get_expense_data(conn)
             plot_income_vs_expenses(income_data, expense_data)
+        elif args.report_month:
+            report_by_month(conn)
+        elif args.report_category:
+            report_by_category(conn)
+        elif args.report_family:
+            report_by_family_member(conn)
         else:
             parser.print_help()
             print("\nНе указана функция для запуска. Используйте один из доступных флагов.")
