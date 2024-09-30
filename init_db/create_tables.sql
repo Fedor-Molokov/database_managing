@@ -47,3 +47,48 @@ CREATE TABLE IF NOT EXISTS audit_log (
     username VARCHAR(255),
     operation_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE VIEW income_view AS
+SELECT 
+    budget.id,
+    family_members.last_name,
+    income_categories.name AS income_category,
+    budget.date,
+    budget.income_amount
+FROM 
+    budget
+JOIN 
+    family_members ON budget.family_member_id = family_members.id
+JOIN 
+    income_categories ON budget.income_category_id = income_categories.id
+WHERE 
+    budget.income_amount IS NOT NULL;
+
+CREATE VIEW expense_view AS
+SELECT 
+    budget.id,
+    family_members.last_name,
+    expense_categories.name AS expense_category,
+    budget.date,
+    budget.expense_amount
+FROM 
+    budget
+JOIN 
+    family_members ON budget.family_member_id = family_members.id
+JOIN 
+    expense_categories ON budget.expense_category_id = expense_categories.id
+WHERE 
+    budget.expense_amount IS NOT NULL;
+
+CREATE VIEW budget_summary AS
+SELECT 
+    family_members.last_name,
+    COALESCE(SUM(budget.income_amount), 0) AS total_income,
+    COALESCE(SUM(budget.expense_amount), 0) AS total_expense,
+    COALESCE(SUM(budget.income_amount), 0) - COALESCE(SUM(budget.expense_amount), 0) AS net_balance
+FROM 
+    budget
+JOIN 
+    family_members ON budget.family_member_id = family_members.id
+GROUP BY 
+    family_members.last_name;

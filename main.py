@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from user_auth import create_user, authenticate_user
 from audit import view_audit_log, initialize_audit_system
+from view import view_income, view_expenses, view_budget_summary
 import random
 from datetime import datetime
 
@@ -179,6 +180,9 @@ def main():
     parser.add_argument('--view-audit', action='store_true', help='Просмотреть журнал аудита изменений.')
     parser.add_argument('--add-expense', action='store_true', help='Добавить расход в бюджет интерактивно.')
     parser.add_argument('--add-income', action='store_true', help='Добавить доход в бюджет интерактивно.')
+    parser.add_argument('--view-income', action='store_true', help='Просмотреть доходы.')
+    parser.add_argument('--view-expenses', action='store_true', help='Просмотреть расходы.')
+    parser.add_argument('--view-summary', action='store_true', help='Просмотреть сводный бюджет.')
     args = parser.parse_args()
 
     conn = create_connection()
@@ -196,12 +200,15 @@ def main():
             interactive_add_expense(conn)
         elif args.add_income:
             interactive_add_income(conn)
+        elif args.view_income:
+            view_income(conn)
+        elif args.view_expenses:
+            view_expenses(conn)
+        elif args.view_summary:
+            view_budget_summary(conn)
         else:
             parser.print_help()
             print("\nНе указана функция для запуска. Используйте один из доступных флагов.")
         conn.close()
     else:
         print("Не удалось подключиться к базе данных.")
-
-if __name__ == "__main__":
-    main()
