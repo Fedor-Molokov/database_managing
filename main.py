@@ -53,6 +53,18 @@ def add_expense(conn, date, family_member_id, expense_category_id, expense_amoun
     except psycopg2.Error as e:
         print(f"Ошибка при добавлении расхода: {e}")
 
+def add_income(conn, date, family_member_id, income_category_id, income_amount):
+    """Добавление записи о доходе."""
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO budget (date, family_member_id, income_category_id, income_amount) VALUES (%s, %s, %s, %s)",
+                (date, family_member_id, income_category_id, income_amount)
+            )
+            print("Запись о доходе добавлена.")
+    except psycopg2.Error as e:
+        print(f"Ошибка при добавлении дохода: {e}")
+
 def run_authentication_module(conn):
     """Запуск модуля аутентификации пользователей."""
     if input("Создать нового пользователя? (y/n): ") == 'y':
@@ -66,11 +78,55 @@ def run_authentication_module(conn):
     else:
         print("Доступ запрещен.")
 
-def get_random_expense_data():
-    """Функция для генерации случайных данных о расходах."""
-    random_amount = round(random.uniform(10.00, 1000.00), 2)
-    random_date = datetime.now().strftime('%Y-%m-%d')
-    return random_date, random_amount
+def get_random_data():
+    """Функция для генерации случайных данных о доходах или расходах."""
+    random_amount = round(random.uniform(100.00, 5000.00), 2)
+    date = datetime.now().strftime('%Y-%m-%d')
+    return date, random_amount
+
+def interactive_add_income(conn):
+    """Интерактивный режим добавления записи о доходе."""
+    # Спрашиваем у пользователя, хочет ли он сгенерировать случайные данные
+    use_random = input("Вы хотите сгенерировать случайные данные? (y/n): ")
+
+    if use_random.lower() == 'y':
+        date, amount = get_random_data()
+        print(f"Текущая дата: {date}")
+        print(f"Случайная сумма дохода: {amount}")
+    else:
+        # Пример для ввода даты и суммы
+        print("Введите данные для добавления дохода.")
+        print("Пример формата даты: 2024-09-27")
+        print("Пример суммы: 1500.50")
+
+        # Ввод даты
+        while True:
+            date = input("Введите дату дохода (формат: YYYY-MM-DD): ")
+            try:
+                # Проверяем формат даты
+                datetime.strptime(date, '%Y-%m-%d')
+                break
+            except ValueError:
+                print("Неверный формат даты, попробуйте снова.")
+
+        # Ввод суммы
+        while True:
+            try:
+                amount = float(input("Введите сумму дохода: "))
+                break
+            except ValueError:
+                print("Неверный формат суммы, попробуйте снова.")
+
+    # Для примера выбираем первого члена семьи и категорию доходов
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM family_members LIMIT 1")
+        family_member_id = cur.fetchone()[0]
+
+        cur.execute("SELECT id FROM income_categories LIMIT 1")
+        income_category_id = cur.fetchone()[0]
+
+    # Добавляем запись в базу данных
+    add_income(conn, date, family_member_id, income_category_id, amount)
 
 def interactive_add_expense(conn):
     """Интерактивный режим добавления записи о расходе."""
@@ -78,7 +134,7 @@ def interactive_add_expense(conn):
     use_random = input("Вы хотите сгенерировать случайные данные? (y/n): ")
 
     if use_random.lower() == 'y':
-        date, amount = get_random_expense_data()
+        date, amount = get_random_data()
         print(f"Текущая дата: {date}")
         print(f"Случайная сумма расхода: {amount}")
     else:
@@ -122,6 +178,7 @@ def main():
     parser.add_argument('--auth', action='store_true', help='Запустить модуль аутентификации пользователей.')
     parser.add_argument('--view-audit', action='store_true', help='Просмотреть журнал аудита изменений.')
     parser.add_argument('--add-expense', action='store_true', help='Добавить расход в бюджет интерактивно.')
+    parser.add_argument('--add-income', action='store_true', help='Добавить доход в бюджет интерактивно.')
     args = parser.parse_args()
 
     conn = create_connection()
@@ -137,6 +194,8 @@ def main():
             view_audit_log(conn)
         elif args.add_expense:
             interactive_add_expense(conn)
+        elif args.add_income:
+            interactive_add_income(conn)
         else:
             parser.print_help()
             print("\nНе указана функция для запуска. Используйте один из доступных флагов.")
