@@ -7,7 +7,6 @@ from view import view_income, view_expenses, view_budget_summary
 import random
 from datetime import datetime
 
-# Параметры подключения
 host = "localhost"
 dbname = "my_database"
 user = "my_user"
@@ -22,8 +21,7 @@ def create_connection():
         print(f"Ошибка подключения к базе данных: {e}")
         return None
 
-def initialize_data(conn):
-    """Добавление начальных данных в справочники."""
+def initialize_data(conn):  # Добавление начальных данных в справочники.
     try:
         with conn.cursor() as cur:
             cur.execute("INSERT INTO relationship_types (name) VALUES ('Parent') RETURNING id")
@@ -42,8 +40,7 @@ def initialize_data(conn):
         print(f"Ошибка при добавлении начальных данных: {e}")
         return None, None, None
 
-def add_expense(conn, date, family_member_id, expense_category_id, expense_amount):
-    """Добавление записи о расходе."""
+def add_expense(conn, date, family_member_id, expense_category_id, expense_amount):  # Добавление записи о расходе.
     try:
         with conn.cursor() as cur:
             cur.execute(
@@ -54,8 +51,7 @@ def add_expense(conn, date, family_member_id, expense_category_id, expense_amoun
     except psycopg2.Error as e:
         print(f"Ошибка при добавлении расхода: {e}")
 
-def add_income(conn, date, family_member_id, income_category_id, income_amount):
-    """Добавление записи о доходе."""
+def add_income(conn, date, family_member_id, income_category_id, income_amount):  # Добавление записи о доходе.
     try:
         with conn.cursor() as cur:
             cur.execute(
@@ -66,8 +62,7 @@ def add_income(conn, date, family_member_id, income_category_id, income_amount):
     except psycopg2.Error as e:
         print(f"Ошибка при добавлении дохода: {e}")
 
-def run_authentication_module(conn):
-    """Запуск модуля аутентификации пользователей."""
+def run_authentication_module(conn):  # Запуск модуля аутентификации пользователей.
     if input("Создать нового пользователя? (y/n): ") == 'y':
         username = input("Введите имя пользователя: ")
         password = input("Введите пароль: ")
@@ -79,72 +74,52 @@ def run_authentication_module(conn):
     else:
         print("Доступ запрещен.")
 
-def get_random_data():
-    """Функция для генерации случайных данных о доходах или расходах."""
+def get_random_data():  # Функция для генерации случайных данных о доходах или расходах.
     random_amount = round(random.uniform(100.00, 5000.00), 2)
     date = datetime.now().strftime('%Y-%m-%d')
     return date, random_amount
 
-def interactive_add_income(conn):
-    """Интерактивный режим добавления записи о доходе."""
-    # Спрашиваем у пользователя, хочет ли он сгенерировать случайные данные
+def interactive_add_income(conn):  # Интерактивный режим добавления записи о доходе.
     use_random = input("Вы хотите сгенерировать случайные данные? (y/n): ")
-
     if use_random.lower() == 'y':
         date, amount = get_random_data()
         print(f"Текущая дата: {date}")
         print(f"Случайная сумма дохода: {amount}")
     else:
-        # Пример для ввода даты и суммы
         print("Введите данные для добавления дохода.")
         print("Пример формата даты: 2024-09-27")
         print("Пример суммы: 1500.50")
-
-        # Ввод даты
         while True:
             date = input("Введите дату дохода (формат: YYYY-MM-DD): ")
             try:
-                # Проверяем формат даты
                 datetime.strptime(date, '%Y-%m-%d')
                 break
             except ValueError:
                 print("Неверный формат даты, попробуйте снова.")
-
-        # Ввод суммы
         while True:
             try:
                 amount = float(input("Введите сумму дохода: "))
                 break
             except ValueError:
                 print("Неверный формат суммы, попробуйте снова.")
-
-    # Для примера выбираем первого члена семьи и категорию доходов
     with conn.cursor() as cur:
         cur.execute("SELECT id FROM family_members LIMIT 1")
         family_member_id = cur.fetchone()[0]
-
         cur.execute("SELECT id FROM income_categories LIMIT 1")
         income_category_id = cur.fetchone()[0]
-
-    # Добавляем запись в базу данных
     add_income(conn, date, family_member_id, income_category_id, amount)
 
-def interactive_add_expense(conn):
-    """Интерактивный режим добавления записи о расходе."""
-    # Спрашиваем у пользователя, хочет ли он сгенерировать случайные данные
-    use_random = input("Вы хотите сгенерировать случайные данные? (y/n): ")
+def interactive_add_expense(conn):  # Интерактивный режим добавления записи о расходе.
 
+    use_random = input("Вы хотите сгенерировать случайные данные? (y/n): ") # Спрашиваем у пользователя, хочет ли он сгенерировать случайные данные
     if use_random.lower() == 'y':
         date, amount = get_random_data()
         print(f"Текущая дата: {date}")
         print(f"Случайная сумма расхода: {amount}")
     else:
-        # Пример для ввода даты и суммы
         print("Введите данные для добавления расхода.")
         print("Пример формата даты: 2024-09-27")
         print("Пример суммы: 500.50")
-
-        # Ввод даты
         while True:
             date = input("Введите дату расхода (формат: YYYY-MM-DD): ")
             try:
@@ -153,24 +128,18 @@ def interactive_add_expense(conn):
                 break
             except ValueError:
                 print("Неверный формат даты, попробуйте снова.")
-
-        # Ввод суммы
         while True:
             try:
                 amount = float(input("Введите сумму расхода: "))
                 break
             except ValueError:
                 print("Неверный формат суммы, попробуйте снова.")
-
-    # Для примера выбираем первого члена семьи и категорию расходов
-    with conn.cursor() as cur:
+    with conn.cursor() as cur:      # Для примера выбираем первого члена семьи и категорию расходов
         cur.execute("SELECT id FROM family_members LIMIT 1")
         family_member_id = cur.fetchone()[0]
-
         cur.execute("SELECT id FROM expense_categories LIMIT 1")
         expense_category_id = cur.fetchone()[0]
 
-    # Добавляем запись в базу данных
     add_expense(conn, date, family_member_id, expense_category_id, amount)
 
 def main():
@@ -212,3 +181,6 @@ def main():
         conn.close()
     else:
         print("Не удалось подключиться к базе данных.")
+
+if __name__ == "__main__":
+    main()

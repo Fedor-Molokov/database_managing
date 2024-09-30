@@ -1,5 +1,4 @@
-def view_income(conn):
-    """Отображение доходов с использованием представления income_view."""
+def view_income(conn): # Отображение доходов с использованием представления income_view.
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM income_view")
@@ -10,8 +9,7 @@ def view_income(conn):
     except psycopg2.Error as e:
         print(f"Ошибка при выполнении запроса к представлению income_view: {e}")
 
-def view_expenses(conn):
-    """Отображение расходов с использованием представления expense_view."""
+def view_expenses(conn): # Отображение расходов с использованием представления expense_view.
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM expense_view")
@@ -22,8 +20,7 @@ def view_expenses(conn):
     except psycopg2.Error as e:
         print(f"Ошибка при выполнении запроса к представлению expense_view: {e}")
 
-def view_budget_summary(conn):
-    """Отображение сводного бюджета с использованием представления budget_summary."""
+def view_budget_summary(conn): # Отображение сводного бюджета с использованием представления budget_summary.
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM budget_summary")
