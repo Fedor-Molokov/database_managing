@@ -4,6 +4,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from user_auth import create_user, authenticate_user
 from audit import view_audit_log, initialize_audit_system
 from view import view_income, view_expenses, view_budget_summary
+from visualization import plot_expenses, get_income_data, plot_incomes, get_expense_data, plot_income_vs_expenses
 import random
 from datetime import datetime
 
@@ -152,6 +153,9 @@ def main():
     parser.add_argument('--view-income', action='store_true', help='Просмотреть доходы.')
     parser.add_argument('--view-expenses', action='store_true', help='Просмотреть расходы.')
     parser.add_argument('--view-summary', action='store_true', help='Просмотреть сводный бюджет.')
+    parser.add_argument('--plot-expenses', action='store_true', help='Построить график расходов.')
+    parser.add_argument('--plot-incomes', action='store_true', help='Построить график доходов.')
+    parser.add_argument('--plot-summary', action='store_true', help='Построить круговую диаграмму доходов и расходов.')
     args = parser.parse_args()
 
     conn = create_connection()
@@ -175,6 +179,16 @@ def main():
             view_expenses(conn)
         elif args.view_summary:
             view_budget_summary(conn)
+        elif args.plot_expenses:
+            expense_data = get_expense_data(conn)
+            plot_expenses(expense_data)
+        elif args.plot_incomes:
+            income_data = get_income_data(conn)
+            plot_incomes(income_data)
+        elif args.plot_summary:
+            income_data = get_income_data(conn)
+            expense_data = get_expense_data(conn)
+            plot_income_vs_expenses(income_data, expense_data)
         else:
             parser.print_help()
             print("\nНе указана функция для запуска. Используйте один из доступных флагов.")
